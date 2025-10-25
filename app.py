@@ -52,6 +52,8 @@ st.dataframe(price_data[["Country", "Current Price (USD/lb)", "Price (MYR)", "3-
 
 # --- SECTION: PRODUCTION TRENDS ---
 st.subheader("🌍 Coffee Production by Country")
+st.caption("📅 Latest available production data: 2021–2022 (ICO)")
+
 production = pd.DataFrame({
     "Country": ["Brazil", "Ethiopia", "Colombia", "Vietnam", "Indonesia"],
     "2021": [3550, 471, 858, 1680, 750],
@@ -98,3 +100,35 @@ for i, (country, city) in enumerate(cities.items()):
 
 st.markdown("—")
 st.caption("Built for specialty café market strategy | v1.0")
+
+# --- SECTION: SPECIALTY FOCUS ---
+st.subheader("🧬 Specialty Focus: High-Scoring Coffee Origins")
+st.markdown("These origins consistently produce specialty-grade coffees scoring 80+ SCA points, often in small volumes.")
+
+specialty_data = pd.DataFrame({
+    "Country": [
+        "Panama", "Yemen", "Ethiopia", "Costa Rica", "Guatemala", "Colombia", "El Salvador", "Burundi", "Rwanda", "Brazil"
+    ],
+    "Notable Region / Producer": [
+        "Boquete (Hacienda La Esmeralda)", 
+        "Haraz (Qima Coffee)", 
+        "Yirgacheffe / Sidamo", 
+        "Tarrazú", 
+        "Huehuetenango", 
+        "Wilton Benitez / La Palma y El Tucán", 
+        "Santa Ana", 
+        "Ngozi", 
+        "Gakenke", 
+        "Daterra"
+    ],
+    "Avg. SCA Score": [
+        90.5, 88.0, 88.5, 87.0, 86.5, 88.0, 86.0, 86.5, 86.5, 85.0
+    ],
+    "Auction Price ($/lb)": [
+        350.25, 180.00, 120.00, 105.00, 95.00, 110.00, 90.00, 85.00, 82.00, 75.00
+    ]
+})
+specialty_data["Auction Price ($/lb)"] = specialty_data["Auction Price ($/lb)"].apply(lambda x: f"${x:.2f}")
+
+st.dataframe(specialty_data)
+
