@@ -3,6 +3,8 @@ import pandas as pd
 import plotly.express as px
 from pytrends.request import TrendReq
 import requests
+import os
+
 
 st.set_page_config(page_title="Specialty Coffee Market Dashboard", layout="wide")
 
