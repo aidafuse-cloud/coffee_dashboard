@@ -124,11 +124,34 @@ specialty_data = pd.DataFrame({
     "Avg. SCA Score": [
         90.5, 88.0, 88.5, 87.0, 86.5, 88.0, 86.0, 86.5, 86.5, 85.0
     ],
-    "Auction Price ($/lb)": [
+    "Auction Price (USD/lb)": [
         350.25, 180.00, 120.00, 105.00, 95.00, 110.00, 90.00, 85.00, 82.00, 75.00
     ]
 })
-specialty_data["Auction Price ($/lb)"] = specialty_data["Auction Price ($/lb)"].apply(lambda x: f"${x:.2f}")
 
+# --- Add MYR Conversion ---
+if rate:
+    specialty_data["Price (MYR/lb)"] = specialty_data["Auction Price (USD/lb)"] * rate
+
+    # --- Add Buy or Wait Logic ---
+    def buy_or_wait_specialty(row):
+        if row["Auction Price (USD/lb)"] >= 150:
+            return "🟡 Wait"
+        elif row["Auction Price (USD/lb)"] <= 100:
+            return "🟢 Buy"
+        else:
+            return "⚪ Hold"
+
+    specialty_data["Suggestion"] = specialty_data.apply(buy_or_wait_specialty, axis=1)
+
+    # Format currency
+    specialty_data["Auction Price (USD/lb)"] = specialty_data["Auction Price (USD/lb)"].apply(lambda x: f"${x:.2f}")
+    specialty_data["Price (MYR/lb)"] = specialty_data["Price (MYR/lb)"].apply(lambda x: f"RM{x:,.2f}")
+
+else:
+    st.warning("Couldn't fetch USD to MYR rate. Showing USD prices only.")
+
+# --- Display Table ---
 st.dataframe(specialty_data)
+
 
