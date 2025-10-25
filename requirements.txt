@@ -3,3 +3,5 @@ pandas
 plotly
 pytrends
 requests
+folium
+streamlit_folium
