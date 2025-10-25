@@ -3,6 +3,8 @@ import pandas as pd
 import plotly.express as px
 from pytrends.request import TrendReq
 import requests
+import folium
+from streamlit_folium import st_folium
 import os
 weather_api_key = st.secrets["WEATHER_API_KEY"] 
 
@@ -84,6 +86,7 @@ import folium
 # Coordinates for specialty regions
 regions = {
     "Yirgacheffe, Ethiopia": [6.16, 38.2],
+    "Antioquia, Colombia": (6.4956, -75.5550),
     "Neiva, Colombia": [2.94, -75.28],
     "Huehuetenango, Guatemala": [15.32, -91.47],
     "Boquete, Panama": [8.78, -82.44],
@@ -105,6 +108,24 @@ for name, coords in regions.items():
             "temp": temp,
             "desc": desc
         })
+
+# --- Display Weather Map ---
+st.markdown("## 🗺️ Weather Map: Specialty Coffee Growing Regions")
+st.markdown("Live temperature and weather across known specialty origins.")
+
+weather_map = folium.Map(location=[0, 0], zoom_start=2)
+
+for point in weather_points:
+    lat, lon = point["coords"]
+    tooltip = f"{point['name']}<br>🌡️ Temp: {point['temp']}K<br>🌤️ Weather: {point['desc']}"
+    folium.Marker(
+        location=[lat, lon],
+        tooltip=tooltip,
+        icon=folium.Icon(color="green", icon="cloud")
+    ).add_to(weather_map)
+
+st_folium(weather_map, width=700, height=500)
+
 
 # Build the map
 m = folium.Map(location=[6, -30], zoom_start=2, tiles="CartoDB positron")
