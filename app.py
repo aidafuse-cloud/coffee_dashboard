@@ -76,30 +76,50 @@ else:
     st.warning("Google Trends data not available at the moment.")
 
 # --- SECTION: WEATHER (OPTIONAL) ---
-st.subheader("🌦️ Weather Snapshots – Top Coffee Regions")
-weather_api_key = "e00472f60c950f601599d6d44e561ccc"
-cities = {
-    "Brazil": "Varginha",
-    "Colombia": "Medellin",
-    "Ethiopia": "Addis Ababa"
+from streamlit_folium import st_folium
+import folium
+
+# Coordinates for specialty regions
+regions = {
+    "Yirgacheffe, Ethiopia": [6.16, 38.2],
+    "Neiva, Colombia": [2.94, -75.28],
+    "Huehuetenango, Guatemala": [15.32, -91.47],
+    "Boquete, Panama": [8.78, -82.44],
+    "Tarrazú, Costa Rica": [9.65, -84.02]
 }
 
-cols = st.columns(len(cities))
-for i, (country, city) in enumerate(cities.items()):
-    url = f"http://api.openweathermap.org/data/2.5/weather?q={city}&appid={weather_api_key}&units=metric"
+# Fetch live weather for each region
+weather_points = []
+for name, coords in regions.items():
+    url = f"http://api.openweathermap.org/data/2.5/weather?lat={coords[0]}&lon={coords[1]}&appid={weather_api_key}&units=metric"
     r = requests.get(url)
     if r.status_code == 200:
         data = r.json()
         temp = data["main"]["temp"]
         desc = data["weather"][0]["description"]
-        with cols[i]:
-            st.metric(label=country, value=f"{temp}°C", delta=desc)
-    else:
-        with cols[i]:
-            st.error(f"{country} weather unavailable")
+        weather_points.append({
+            "name": name,
+            "coords": coords,
+            "temp": temp,
+            "desc": desc
+        })
 
-st.markdown("—")
-st.caption("Built for specialty café market strategy | v1.0")
+# Build the map
+m = folium.Map(location=[6, -30], zoom_start=2, tiles="CartoDB positron")
+
+for point in weather_points:
+    popup_text = f"{point['name']}<br>🌡️ {point['temp']}°C<br>{point['desc'].title()}"
+    folium.Marker(
+        location=point["coords"],
+        popup=popup_text,
+        icon=folium.Icon(color="green", icon="cloud")
+    ).add_to(m)
+
+# Show the map in Streamlit
+st.subheader("🗺️ Weather Map: Specialty Coffee Growing Regions")
+st.caption("Live temperature and weather across known specialty origins.")
+st_folium(m, width=700, height=500)
+
 
 # --- SECTION: SPECIALTY FOCUS ---
 st.subheader("🧬 Specialty Focus: High-Scoring Coffee Origins")
