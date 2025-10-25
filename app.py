@@ -238,8 +238,6 @@ else:
     specialty_data["Auction Price (USD/lb)"] = specialty_data["Auction Price (USD/lb) (raw)"].apply(lambda x: f"${x:.2f}")
     specialty_data = specialty_data.drop(columns=["Auction Price (USD/lb) (raw)"])
 
-# === Display Final Table ===
-st.dataframe(specialty_data)
 
 # === Display Final Table ===
 st.dataframe(specialty_data)
