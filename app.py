@@ -213,45 +213,50 @@ specialty_data = pd.DataFrame({
 # --- Currency Toggle ---
 currency = st.radio("Select currency for suggestion logic:", ["MYR", "USD"], horizontal=True)
 
-# --- Suggestion Logic Function ---
+# === Suggestion Logic Function (Refactored for Option 2) ===
 def get_suggestion(row):
-    price_myr = row["Price (MYR/lb)"]
-    price_usd = row["Auction Price (USD/lb) (raw)"]  # Raw numeric USD price (not formatted)
+    price_usd = row["Auction Price (USD/lb) (raw)"]
+    price_myr = price_usd * rate if rate else None
 
-    if currency == "MYR":
+    if currency == "MYR" and price_myr is not None:
         if price_myr < buy_threshold:
             return "✅ Buy"
         elif price_myr > wait_threshold:
             return "🟡 Wait"
         else:
             return "⚪ Hold"
-    else:  # USD mode with fixed thresholds
+    else:
         if price_usd <= 100:
             return "✅ Buy"
         elif price_usd >= 150:
             return "🟡 Wait"
         else:
             return "⚪ Hold"
-            
-# Raw auction prices
+
+# Raw numeric auction price column
 specialty_data["Auction Price (USD/lb) (raw)"] = [350.25, 180.00, 120.00, 105.00, 95.00,
                                                   110.00, 90.00, 85.00, 82.00, 75.00]
 
-# Apply suggestion
-specialty_data["Suggestion"] = specialty_data.apply(get_suggestion, axis=1)
-
-
-# Format currency
+# Compute MYR price (if rate available)
 if rate:
+    specialty_data["Price (MYR/lb)"] = specialty_data["Auction Price (USD/lb) (raw)"] * rate
+
+    # Apply suggestion logic (after MYR is available)
+    specialty_data["Suggestion"] = specialty_data.apply(get_suggestion, axis=1)
+
+    # Format price columns
     specialty_data["Auction Price (USD/lb)"] = specialty_data["Auction Price (USD/lb) (raw)"].apply(lambda x: f"${x:.2f}")
     specialty_data["Price (MYR/lb)"] = specialty_data["Price (MYR/lb)"].apply(lambda x: f"RM{x:,.2f}")
-    # Drop raw column only if rate is available
-    specialty_data = specialty_data.drop(columns=["Auction Price (USD/lb) (raw)"])
+
+   # Drop the raw numeric column (optional polish step)
+   specialty_data = specialty_data.drop(columns=["Auction Price (USD/lb) (raw)"])
+
 else:
     st.warning("Couldn't fetch USD to MYR rate. Showing USD prices only.")
+    specialty_data["Suggestion"] = specialty_data.apply(get_suggestion, axis=1)
 
 
-specialty_data = specialty_data.drop(columns=["Auction Price (USD/lb) (raw)"])
+
 
 # --- Display Table ---
 st.dataframe(specialty_data)
