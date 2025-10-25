@@ -46,9 +46,9 @@ else:
     st.warning("Could not retrieve USD to MYR exchange rate.")
 
 # --- Display updated table ---
+st.markdown("### 💡 Current Green Coffee Prices (in MYR)")
 st.dataframe(price_data[["Country", "Current Price (USD/lb)", "Price (MYR)", "3-Month Avg", "Suggestion"]])
 
-st.dataframe(price_data, use_container_width=True)
 
 # --- BUY OR WAIT LOGIC ---
 def buy_or_wait(row):
