@@ -170,6 +170,17 @@ st_folium(m, width=700, height=500)
 # --- SECTION: SPECIALTY FOCUS ---
 st.subheader("🧬 Specialty Focus: High-Scoring Coffee Origins")
 st.markdown("These origins consistently produce specialty-grade coffees scoring 80+ SCA points, often in small volumes.")
+st.markdown(
+    """
+    💡 **How suggestions are made**:
+    - ✅ **Buy**: Current price is significantly lower than average for similar quality (below RM400/lb).
+    - 🟡 **Wait**: Prices are very high and may not reflect stable market value (above RM700/lb).
+    - ⚪ **Hold**: Fair or average range — consider holding off until better opportunities.
+
+    These thresholds are flexible and can be adjusted based on global market trends and local currency fluctuations.
+    """
+)
+
 
 specialty_data = pd.DataFrame({
     "Country": [
