@@ -168,98 +168,85 @@ st_folium(m, width=700, height=500)
 
 
 # === SECTION: SPECIALTY FOCUS ===
-st.subheader("🧬 Specialty Focus: High-Scoring Coffee Origins")
+st.subheader("🎯 Specialty Focus: High-Scoring Coffee Origins")
 st.markdown("These origins consistently produce specialty-grade coffees scoring 80+ SCA points, often in small volumes.")
 
-# 💬 Explanation + Interactive Threshold Sliders
+# 🧠 Explanation + Interactive Threshold Sliders
 with st.expander("📊 How suggestions are made (click to expand)"):
     st.markdown(
         """
         💡 **How suggestions are made**:
         - ✅ **Buy**: Current price is significantly lower than average for similar quality (below selected RM threshold).
         - 🟡 **Wait**: Prices are very high and may not reflect stable market value (above selected RM threshold).
-        - ⚪ **Hold**: Fair or average range — consider holding off until better opportunities.
+        - ⚪️ **Hold**: Fair or average range — consider holding off until better opportunities.
 
-        _Thresholds below are adjustable based on global trends & local currency rates._
+        _You can adjust the thresholds below to reflect your local risk tolerance or purchasing goals._
         """
     )
-    buy_threshold = st.slider("✅ Buy if below (RM/lb)", min_value=200, max_value=600, value=400, step=10)
-    wait_threshold = st.slider("🟡 Wait if above (RM/lb)", min_value=600, max_value=2000, value=700, step=10)
 
+# === Threshold sliders ===
+buy_threshold = st.slider("✅ Buy if below (RM/lb)", min_value=200, max_value=600, value=400, step=10)
+wait_threshold = st.slider("🟡 Wait if above (RM/lb)", min_value=600, max_value=2000, value=700, step=10)
+
+# === Data ===
 specialty_data = pd.DataFrame({
     "Country": [
-        "Panama", "Yemen", "Ethiopia", "Costa Rica", "Guatemala", "Colombia", "El Salvador", "Burundi", "Rwanda", "Brazil"
+        "Panama", "Yemen", "Ethiopia", "Costa Rica", "Guatemala", "Colombia",
+        "El Salvador", "Burundi", "Rwanda", "Brazil"
     ],
     "Notable Region / Producer": [
-        "Boquete (Hacienda La Esmeralda)", 
-        "Haraz (Qima Coffee)", 
-        "Yirgacheffe / Sidamo", 
-        "Tarrazú", 
-        "Huehuetenango", 
-        "Wilton Benitez / La Palma y El Tucán", 
-        "Santa Ana", 
-        "Ngozi", 
-        "Gakenke", 
-        "Daterra"
+        "Boquete (Hacienda La Esmeralda)", "Haraz (Qima Coffee)", "Yirgacheffe / Sidamo", "Tarrazú",
+        "Huehuetenango", "Wilton Benitez / La Palma y El Tucán", "Santa Ana", "Ngozi", "Gakenke", "Daterra"
     ],
-    "Avg. SCA Score": [
-        90.5, 88.0, 88.5, 87.0, 86.5, 88.0, 86.0, 86.5, 86.5, 85.0
-    ],
-    "Auction Price (USD/lb)": [
-        350.25, 180.00, 120.00, 105.00, 95.00, 110.00, 90.00, 85.00, 82.00, 75.00
-    ]
+    "Avg. SCA Score": [90.5, 88.0, 88.5, 87.0, 86.5, 88.0, 86.0, 86.5, 86.5, 85.0],
+    "Auction Price (USD/lb) (raw)": [350.25, 180.00, 120.00, 105.00, 95.00, 110.00, 90.00, 85.00, 82.00, 75.00]
 })
 
-# --- Currency Toggle ---
-currency = st.radio("Select currency for suggestion logic:", ["MYR", "USD"], horizontal=True)
+# === Get latest rate from earlier fetch ===
+# Assuming `rate` variable is defined above this block
 
-# === Suggestion Logic Function (Refactored for Option 2) ===
-def get_suggestion(row):
-    price_usd = row["Auction Price (USD/lb) (raw)"]
-    price_myr = price_usd * rate if rate else None
+if rate:
+    # Compute MYR raw price for logic
+    specialty_data["Price (MYR/lb) (raw)"] = specialty_data["Auction Price (USD/lb) (raw)"] * rate
 
-    if currency == "MYR" and price_myr is not None:
+    # Suggestion logic (MYR-only)
+    def get_suggestion(row):
+        price_myr = row["Price (MYR/lb) (raw)"]
         if price_myr < buy_threshold:
             return "✅ Buy"
         elif price_myr > wait_threshold:
             return "🟡 Wait"
         else:
-            return "⚪ Hold"
-    else:
-        if price_usd <= 100:
-            return "✅ Buy"
-        elif price_usd >= 150:
-            return "🟡 Wait"
-        else:
-            return "⚪ Hold"
+            return "⚪️ Hold"
 
-# Raw numeric auction price column
-specialty_data["Auction Price (USD/lb) (raw)"] = [350.25, 180.00, 120.00, 105.00, 95.00,
-                                                  110.00, 90.00, 85.00, 82.00, 75.00]
-
-if rate:
-    # Compute MYR price
-    specialty_data["Price (MYR/lb)"] = specialty_data["Auction Price (USD/lb) (raw)"] * rate
-
-    # Apply suggestion logic
     specialty_data["Suggestion"] = specialty_data.apply(get_suggestion, axis=1)
 
-    # Format price columns
+    # Format currency for display
     specialty_data["Auction Price (USD/lb)"] = specialty_data["Auction Price (USD/lb) (raw)"].apply(lambda x: f"${x:.2f}")
-    specialty_data["Price (MYR/lb)"] = specialty_data["Price (MYR/lb)"].apply(lambda x: f"RM{x:,.2f}")
+    specialty_data["Price (MYR/lb)"] = specialty_data["Price (MYR/lb) (raw)"].apply(lambda x: f"RM{x:,.2f}")
 
-    # Remove raw USD column (optional polish)
-    specialty_data = specialty_data.drop(columns=["Auction Price (USD/lb) (raw)"])
+    # Drop raw columns
+    specialty_data = specialty_data.drop(columns=["Auction Price (USD/lb) (raw)", "Price (MYR/lb) (raw)"])
 
 else:
     st.warning("Couldn't fetch USD to MYR rate. Showing USD prices only.")
-    specialty_data["Suggestion"] = specialty_data.apply(get_suggestion, axis=1)
 
+    # Show Hold-only fallback if no rate
+    specialty_data["Suggestion"] = "⚪️ Hold"
 
+    # Format available USD price
+    specialty_data["Auction Price (USD/lb)"] = specialty_data["Auction Price (USD/lb) (raw)"].apply(lambda x: f"${x:.2f}")
+    specialty_data = specialty_data.drop(columns=["Auction Price (USD/lb) (raw)"])
 
-
-
-# --- Display Table ---
+# === Display Final Table ===
 st.dataframe(specialty_data)
+
+# Source citation
+st.markdown(
+    "<div style='font-size: 0.85em; color: gray; margin-top: 10px;'>"
+    "📊 Source: Coffee auction prices via <a href='https://www.coffeeexporter.org' target='_blank'>Coffee Exporter Alliance</a> & live FX data from <a href='https://exchangerate.host' target='_blank'>exchangerate.host</a>"
+    "</div>",
+    unsafe_allow_html=True
+)
 
 
