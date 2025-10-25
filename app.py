@@ -167,20 +167,24 @@ st.caption("Live temperature and weather across known specialty origins.")
 st_folium(m, width=700, height=500)
 
 
-# --- SECTION: SPECIALTY FOCUS ---
+# === SECTION: SPECIALTY FOCUS ===
 st.subheader("🧬 Specialty Focus: High-Scoring Coffee Origins")
 st.markdown("These origins consistently produce specialty-grade coffees scoring 80+ SCA points, often in small volumes.")
-st.markdown(
-    """
-    💡 **How suggestions are made**:
-    - ✅ **Buy**: Current price is significantly lower than average for similar quality (below RM400/lb).
-    - 🟡 **Wait**: Prices are very high and may not reflect stable market value (above RM700/lb).
-    - ⚪ **Hold**: Fair or average range — consider holding off until better opportunities.
 
-    These thresholds are flexible and can be adjusted based on global market trends and local currency fluctuations.
-    """
-)
+# 💬 Explanation + Interactive Threshold Sliders
+with st.expander("📊 How suggestions are made (click to expand)"):
+    st.markdown(
+        """
+        💡 **How suggestions are made**:
+        - ✅ **Buy**: Current price is significantly lower than average for similar quality (below selected RM threshold).
+        - 🟡 **Wait**: Prices are very high and may not reflect stable market value (above selected RM threshold).
+        - ⚪ **Hold**: Fair or average range — consider holding off until better opportunities.
 
+        _Thresholds below are adjustable based on global trends & local currency rates._
+        """
+    )
+    buy_threshold = st.slider("✅ Buy if below (RM/lb)", min_value=200, max_value=600, value=400, step=10)
+    wait_threshold = st.slider("🟡 Wait if above (RM/lb)", min_value=600, max_value=2000, value=700, step=10)
 
 specialty_data = pd.DataFrame({
     "Country": [
@@ -206,20 +210,36 @@ specialty_data = pd.DataFrame({
     ]
 })
 
-# --- Add MYR Conversion ---
-if rate:
-    specialty_data["Price (MYR/lb)"] = specialty_data["Auction Price (USD/lb)"] * rate
+# --- Currency Toggle ---
+currency = st.radio("Select currency for suggestion logic:", ["MYR", "USD"], horizontal=True)
 
-    # --- Add Buy or Wait Logic ---
-    def buy_or_wait_specialty(row):
-        if row["Auction Price (USD/lb)"] >= 150:
+# --- Suggestion Logic Function ---
+def get_suggestion(row):
+    price_myr = row["Price (MYR/lb)"]
+    price_usd = row["Auction Price (USD/lb) (raw)"]  # Raw numeric USD price (not formatted)
+
+    if currency == "MYR":
+        if price_myr < buy_threshold:
+            return "✅ Buy"
+        elif price_myr > wait_threshold:
             return "🟡 Wait"
-        elif row["Auction Price (USD/lb)"] <= 100:
-            return "🟢 Buy"
         else:
             return "⚪ Hold"
+    else:  # USD mode with fixed thresholds
+        if price_usd <= 100:
+            return "✅ Buy"
+        elif price_usd >= 150:
+            return "🟡 Wait"
+        else:
+            return "⚪ Hold"
+            
+# Raw auction prices
+specialty_data["Auction Price (USD/lb) (raw)"] = [350.25, 180.00, 120.00, 105.00, 95.00,
+                                                  110.00, 90.00, 85.00, 82.00, 75.00]
 
-    specialty_data["Suggestion"] = specialty_data.apply(buy_or_wait_specialty, axis=1)
+# Apply suggestion
+specialty_data["Suggestion"] = specialty_data.apply(get_suggestion, axis=1)
+
 
     # Format currency
     specialty_data["Auction Price (USD/lb)"] = specialty_data["Auction Price (USD/lb)"].apply(lambda x: f"${x:.2f}")
@@ -227,6 +247,8 @@ if rate:
 
 else:
     st.warning("Couldn't fetch USD to MYR rate. Showing USD prices only.")
+
+specialty_data = specialty_data.drop(columns=["Auction Price (USD/lb) (raw)"])
 
 # --- Display Table ---
 st.dataframe(specialty_data)
