@@ -147,20 +147,6 @@ for name, coords in regions.items():
 
 # --- Display Weather Map ---
 st.markdown("## 🗺️ Weather Map: Specialty Coffee Growing Regions")
-st.markdown("Live temperature and weather across known specialty origins.")
-
-weather_map = folium.Map(location=[0, 0], zoom_start=2)
-
-for point in weather_points:
-    lat, lon = point["coords"]
-    tooltip = f"{point['name']}<br>🌡️ Temp: {point['temp']}K<br>🌤️ Weather: {point['desc']}"
-    folium.Marker(
-        location=[lat, lon],
-        tooltip=tooltip,
-        icon=folium.Icon(color="green", icon="cloud")
-    ).add_to(weather_map)
-
-st_folium(weather_map, width=700, height=500)
 
 
 # Build the map
@@ -175,6 +161,7 @@ for point in weather_points:
     ).add_to(m)
 
 # Show the map in Streamlit
+st.caption("Additional specialty regions can be plotted as more data becomes available.")
 st.subheader("🗺️ Weather Map: Specialty Coffee Growing Regions")
 st.caption("Live temperature and weather across known specialty origins.")
 st_folium(m, width=700, height=500)
