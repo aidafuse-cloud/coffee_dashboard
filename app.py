@@ -4,7 +4,7 @@ import plotly.express as px
 from pytrends.request import TrendReq
 import requests
 import os
-
+weather_api_key = st.secrets["WEATHER_API_KEY"] 
 
 st.set_page_config(page_title="Specialty Coffee Market Dashboard", layout="wide")
 
