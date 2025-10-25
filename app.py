@@ -87,22 +87,38 @@ fig_prod = px.bar(
 st.plotly_chart(fig_prod, use_container_width=True)
 
 
-# --- SECTION: CONSUMER TRENDS ---
+# === SECTION: CONSUMER SEARCH TRENDS (GOOGLE) ===
 st.subheader("🔍 Consumer Search Trends (Google)")
-pytrends = TrendReq()
+st.caption("Trends based on Google searches over the past 3 months")
+
+from pytrends.request import TrendReq
+
+@st.cache_data(ttl=600)
+def fetch_google_trends(keywords):
+    pytrends = TrendReq()
+    try:
+        pytrends.build_payload(kw_list=keywords, timeframe="today 3-m")
+        df = pytrends.interest_over_time()
+        return df if not df.empty else None
+    except Exception:
+        return None
+
 keywords = ["Ethiopian coffee", "Geisha coffee", "Anaerobic coffee"]
-pytrends.build_payload(kw_list=keywords, timeframe="today 3-m")
-trends_data = pytrends.interest_over_time()
+df_trends = fetch_google_trends(keywords)
 
-if not trends_data.empty:
-    st.line_chart(trends_data[keywords])
+if df_trends is not None and not df_trends.empty:
+    fig = px.line(
+        df_trends[keywords],
+        labels={"value": "Search Interest", "date": "Date"},
+        title="Search Interest Over Time",
+    )
+    st.plotly_chart(fig, use_container_width=True)
 else:
-    st.warning("Google Trends data not available at the moment.")
+    st.warning("⚠️ Unable to fetch Google Trends data at the moment. Please try again later.")
 
-# --- SECTION: WEATHER (OPTIONAL) ---
+# === SECTION: Weather ===
 from streamlit_folium import st_folium
 import folium
-
 # Coordinates for specialty regions
 regions = {
     "Yirgacheffe, Ethiopia": [6.16, 38.2],
