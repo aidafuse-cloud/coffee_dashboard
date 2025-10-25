@@ -160,8 +160,9 @@ for point in weather_points:
     ).add_to(m)
 
 # Show the map in Streamlit
-st.caption("Additional specialty regions can be plotted as more data becomes available.")
+
 st.subheader("🗺️ Weather Map: Specialty Coffee Growing Regions")
+st.caption("Additional specialty regions can be plotted as more data becomes available.")
 st.caption("Live temperature and weather across known specialty origins.")
 st_folium(m, width=700, height=500)
 
