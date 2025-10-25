@@ -16,6 +16,8 @@ st.markdown("Get real-time insights on prices, production, consumer trends, and 
 
 # --- SECTION: GREEN COFFEE PRICES ---
 st.subheader("💰 Green Coffee Prices")
+st.markdown("### ☕ Coffee Price Overview")
+st.markdown("This table displays current green coffee prices in USD and MYR, along with 3-month averages for comparison.")
 price_data = pd.DataFrame({
     "Country": ["Brazil", "Ethiopia", "Colombia", "Vietnam", "Indonesia"],
     "Current Price (USD/lb)": [1.92, 2.14, 2.05, 1.70, 1.80],
@@ -54,18 +56,36 @@ st.markdown("### 💡 Current Green Coffee Prices (in MYR)")
 st.dataframe(price_data[["Country", "Current Price (USD/lb)", "Price (MYR)", "3-Month Avg", "Suggestion"]])
 
 
-# --- SECTION: PRODUCTION TRENDS ---
+# --- SECTION: COFFEE PRODUCTION BY COUNTRY ---
 st.subheader("🌍 Coffee Production by Country")
-st.caption("📅 Latest available production data: 2021–2022 (ICO)")
+st.markdown("""
+This table shows estimated annual green coffee production (all grades) for selected countries, along with forecast changes.  
+☕ **Note:** Countries included are based on publicly available data. Specialty-grade volumes are a subset of these totals.
+""")
 
-production = pd.DataFrame({
-    "Country": ["Brazil", "Ethiopia", "Colombia", "Vietnam", "Indonesia"],
-    "2021": [3550, 471, 858, 1680, 750],
-    "2022": [3400, 500, 900, 1720, 770]
+# Cleaned production dataset
+production_data = pd.DataFrame({
+    "Country": ["Brazil", "Vietnam", "Colombia", "Indonesia", "Ethiopia",
+                "Kenya", "Uganda", "Guatemala"],
+    "Production (’000 bags 60‑kg)": [66400, 30100, 12900, 10900, 8360,
+                                     574, 6959, 2250],
+    "2025/26 Estimate Change (%)": [0.5, 6.9, None, None, None,
+                                     None, None, None]
 })
-prod_melt = production.melt(id_vars="Country", var_name="Year", value_name="Production (000 tons)")
-fig_prod = px.bar(prod_melt, x="Country", y="Production (000 tons)", color="Year", barmode="group")
+
+# Display table
+st.dataframe(production_data, use_container_width=True)
+
+# Bar chart
+fig_prod = px.bar(
+    production_data,
+    x="Country",
+    y="Production (’000 bags 60‑kg)",
+    title="Annual Coffee Production Volume by Country",
+    labels={"Production (’000 bags 60‑kg)": "Production (’000 60‑kg bags)"}
+)
 st.plotly_chart(fig_prod, use_container_width=True)
+
 
 # --- SECTION: CONSUMER TRENDS ---
 st.subheader("🔍 Consumer Search Trends (Google)")
