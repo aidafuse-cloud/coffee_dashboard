@@ -17,6 +17,37 @@ price_data = pd.DataFrame({
     "Current Price (USD/lb)": [1.92, 2.14, 2.05, 1.70, 1.80],
     "3-Month Avg": [1.85, 2.10, 2.00, 1.68, 1.78]
 })
+# --- BUY OR WAIT LOGIC ---
+def buy_or_wait(row):
+    if row["Current Price (USD/lb)"] > row["3-Month Avg"]:
+        return "🟡 Wait"
+    elif row["Current Price (USD/lb)"] < row["3-Month Avg"]:
+        return "🟢 Buy"
+    else:
+        return "⚪ Hold"
+
+price_data["Suggestion"] = price_data.apply(buy_or_wait, axis=1)
+
+# --- USD to MYR Exchange Rate ---
+def get_usd_to_myr():
+    url = "https://open.er-api.com/v6/latest/USD"
+    response = requests.get(url)
+    if response.status_code == 200:
+        data = response.json()
+        return data["rates"]["MYR"]
+    return None
+
+rate = get_usd_to_myr()
+
+if rate:
+    st.metric("💱 USD to MYR", f"1 USD = {rate:.2f} MYR")
+    price_data["Price (MYR)"] = price_data["Current Price (USD/lb)"] * rate
+else:
+    st.warning("Could not retrieve USD to MYR exchange rate.")
+
+# --- Display updated table ---
+st.dataframe(price_data[["Country", "Current Price (USD/lb)", "Price (MYR)", "3-Month Avg", "Suggestion"]])
+
 st.dataframe(price_data, use_container_width=True)
 
 # --- BUY OR WAIT LOGIC ---
