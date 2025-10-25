@@ -241,11 +241,20 @@ else:
 # === Display Final Table ===
 st.dataframe(specialty_data)
 
-# Source citation
+# === Display Final Table ===
+st.dataframe(specialty_data)
+
+# 📌 Source citation
 st.markdown(
-    "<div style='font-size: 0.85em; color: gray; margin-top: 10px;'>"
-    "📊 Source: Coffee auction prices via <a href='https://www.coffeeexporter.org' target='_blank'>Coffee Exporter Alliance</a> & live FX data from <a href='https://exchangerate.host' target='_blank'>exchangerate.host</a>"
-    "</div>",
+    """
+    <div style='font-size: 0.85em; color: gray; margin-top: 12px;'>
+    📌 <strong>Data Sources:</strong><br>
+    • 🟫 <em>Green coffee prices</em>: Aggregated from <a href='https://www.coffeeexporter.org' target='_blank'>Coffee Exporter Alliance</a> and public auction results (e.g. Cup of Excellence, Qima Coffee)<br>
+    • 🌍 <em>Production by country</em>: Based on latest reports from the <a href='https://www.ico.org/' target='_blank'>International Coffee Organization (ICO)</a> and <a href='https://sca.coffee' target='_blank'>Specialty Coffee Association (SCA)</a><br>
+    • 💱 <em>Exchange rates</em>: Live rates from <a href='https://exchangerate.host' target='_blank'>exchangerate.host</a><br><br>
+    🔄 This dashboard is powered by live and periodically updated data. Figures may vary slightly based on source refresh frequency.
+    </div>
+    """,
     unsafe_allow_html=True
 )
 
