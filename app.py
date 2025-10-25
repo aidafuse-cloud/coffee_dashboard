@@ -242,11 +242,14 @@ specialty_data["Suggestion"] = specialty_data.apply(get_suggestion, axis=1)
 
 
 # Format currency
-specialty_data["Auction Price (USD/lb)"] = specialty_data["Auction Price (USD/lb)"].apply(lambda x: f"${x:.2f}")
-specialty_data["Price (MYR/lb)"] = specialty_data["Price (MYR/lb)"].apply(lambda x: f"RM{x:,.2f}")
-
+if rate:
+    specialty_data["Auction Price (USD/lb)"] = specialty_data["Auction Price (USD/lb) (raw)"].apply(lambda x: f"${x:.2f}")
+    specialty_data["Price (MYR/lb)"] = specialty_data["Price (MYR/lb)"].apply(lambda x: f"RM{x:,.2f}")
+    # Drop raw column only if rate is available
+    specialty_data = specialty_data.drop(columns=["Auction Price (USD/lb) (raw)"])
 else:
     st.warning("Couldn't fetch USD to MYR rate. Showing USD prices only.")
+
 
 specialty_data = specialty_data.drop(columns=["Auction Price (USD/lb) (raw)"])
 
