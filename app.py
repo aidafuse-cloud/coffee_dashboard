@@ -146,7 +146,6 @@ for name, coords in regions.items():
         })
 
 # --- Display Weather Map ---
-st.markdown("## 🗺️ Weather Map: Specialty Coffee Growing Regions")
 
 
 # Build the map
