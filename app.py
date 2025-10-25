@@ -50,18 +50,6 @@ st.markdown("### 💡 Current Green Coffee Prices (in MYR)")
 st.dataframe(price_data[["Country", "Current Price (USD/lb)", "Price (MYR)", "3-Month Avg", "Suggestion"]])
 
 
-# --- BUY OR WAIT LOGIC ---
-def buy_or_wait(row):
-    if row["Current Price (USD/lb)"] > row["3-Month Avg"]:
-        return "🟡 Wait"
-    elif row["Current Price (USD/lb)"] < row["3-Month Avg"]:
-        return "🟢 Buy"
-    else:
-        return "⚪ Hold"
-
-price_data["Suggestion"] = price_data.apply(buy_or_wait, axis=1)
-st.dataframe(price_data[["Country", "Current Price (USD/lb)", "3-Month Avg", "Suggestion"]])
-
 # --- SECTION: PRODUCTION TRENDS ---
 st.subheader("🌍 Coffee Production by Country")
 production = pd.DataFrame({
