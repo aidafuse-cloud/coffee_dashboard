@@ -15,8 +15,8 @@ st.title("☕ Specialty Coffee Intelligence Dashboard")
 st.markdown("Get real-time insights on prices, production, consumer trends, and weather.")
 
 # --- SECTION: GREEN COFFEE PRICES ---
-st.subheader("💰 Green Coffee Prices")
-st.markdown("### ☕ Coffee Price Overview")
+
+st.markdown("### ☕ Green Coffee Price Overview")
 st.markdown("This table displays current green coffee prices in USD and MYR, along with 3-month averages for comparison.")
 price_data = pd.DataFrame({
     "Country": ["Brazil", "Ethiopia", "Colombia", "Vietnam", "Indonesia"],
