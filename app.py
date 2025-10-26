@@ -16,8 +16,8 @@ st.markdown("Get real-time insights on prices, production, consumer trends, and 
 
 # --- SECTION: GREEN COFFEE PRICES ---
 
-st.markdown("### ☕ Green Coffee Price Overview")
-st.markdown("This table displays current green coffee prices in USD and MYR, along with 3-month averages for comparison.")
+st.markdown("### ☕ World Green Coffee Price Overview")
+st.markdown("This table displays movement of current green coffee prices in USD and MYR, along with 3-month averages for comparison.")
 price_data = pd.DataFrame({
     "Country": ["Brazil", "Ethiopia", "Colombia", "Vietnam", "Indonesia"],
     "Current Price (USD/lb)": [1.92, 2.14, 2.05, 1.70, 1.80],
@@ -52,7 +52,6 @@ else:
     st.warning("Could not retrieve USD to MYR exchange rate.")
 
 # --- Display updated table ---
-st.markdown("### 💡 Current Green Coffee Prices (in MYR)")
 st.dataframe(price_data[["Country", "Current Price (USD/lb)", "Price (MYR)", "3-Month Avg", "Suggestion"]])
 
 
